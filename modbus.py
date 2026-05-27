@@ -217,10 +217,14 @@ def _format_scaled(result: float, scale: float) -> str:
 
 
 def read_register_str(register: int, name: str = "", clean: bool = False, prefix: str = ""):
+    if not is_register_available(register):
+        return None
     try:
         result = instr.read_string(register, 20)
     except:
+        _record_modbus_result(False, register)
         return None
+    _record_modbus_result(True, register)
     if clean:
         result = "".join([char for char in result if char != "\x00"])
     result = prefix + result
@@ -371,10 +375,14 @@ _REVERSE_LOOKUPS: dict = {
 def read_lookup_register(register: int, lookup: dict, name: str = "") -> str | None:
     """Read a register and return the human-readable string from the lookup dict.
     Falls back to the raw integer string if the value is not in the dict."""
+    if not is_register_available(register):
+        return None
     try:
         result = instr.read_register(register)
     except:
+        _record_modbus_result(False, register)
         return None
+    _record_modbus_result(True, register)
     value = lookup.get(result, str(result))
     if name:
         debug(f"{name}: {value}")
@@ -395,10 +403,14 @@ def write_lookup_register(register: int, lookup: dict, value: str) -> bool | Non
 
 def read_time_register(register: int, name: str = "") -> str | None:
     """Read a time register packed as (hours << 8) | minutes. Returns 'HH:MM'."""
+    if not is_register_available(register):
+        return None
     try:
         result = instr.read_register(register)
     except:
+        _record_modbus_result(False, register)
         return None
+    _record_modbus_result(True, register)
     hours   = (result >> 8) & 0xFF
     minutes =  result       & 0xFF
     value   = f"{hours:02d}:{minutes:02d}"
@@ -430,10 +442,14 @@ def write_enabled_register(register: int, value: str) -> bool | None:
 def read_bit_register(register: int, bit: int, name: str = "") -> str | None:
     """Read a single bit from a register. Returns 'Enabled' (1) or 'Disabled' (0).
     Performs a full register read; use for packed bit-field registers like TimedChgSource."""
+    if not is_register_available(register):
+        return None
     try:
         result = instr.read_register(register)
     except:
+        _record_modbus_result(False, register)
         return None
+    _record_modbus_result(True, register)
     value = "Enabled" if (result >> bit) & 1 else "Disabled"
     if name:
         debug(f"{name} bit {bit}: {value}")
@@ -523,10 +539,14 @@ def write_system_date_time():
 
 
 def read_failcode(register: int, name: str):
+    if not is_register_available(register):
+        return None
     try:
         result = instr.read_register(register)
     except:
+        _record_modbus_result(False, register)
         return None
+    _record_modbus_result(True, register)
 
     error_code = result
     description = __error_lists(error_code)
