@@ -4,12 +4,16 @@ import modbus
 
 load_dotenv()
 
+_serial = modbus.read_register_str(0x035, "Serial Number", clean=True)
+_model = modbus.read_register_value(0x01B, "Model", integer=True)
+
 device = {
     "name": os.getenv("MQTT_TOPIC"),
-    "identifiers": [modbus.read_register_str(0x035, "Serial Number", clean=True)],
+    # identifiers must never be None — fall back to the MQTT topic name
+    "identifiers": [_serial or os.getenv("MQTT_TOPIC")],
     "manufacturer": os.getenv("DEVICE_MANUFACTURER"),
-    "serial_number": modbus.read_register_str(0x035, "Serial Number", clean=True),
-    "model": modbus.read_register_value(0x01B, "Model", integer=True),
+    **( {"serial_number": _serial} if _serial is not None else {} ),
+    **( {"model": _model} if _model is not None else {} ),
 }
 
 system_enabled: bool = True if os.getenv("PUBLISH_SYSTEM") == "true" else False
