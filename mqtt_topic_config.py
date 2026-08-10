@@ -2797,7 +2797,6 @@ mqtt_config: dict[str, dict[str, any]] = {
             "name": "Battery SOC Low Alarm",
             "icon": "mdi:battery-alert",
             "unit_of_measurement": "%",
-            "device_class": "None",
             "min": 0,
             "max": 100,
             "step": 1,
