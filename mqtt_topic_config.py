@@ -7198,3 +7198,17 @@ mqtt_config: dict[str, dict[str, any]] = {
         },
     },
 }
+
+# Optional allowlist: ENABLED_TOPICS=battery/soc,pv1/power,...  When set, every
+# topic not listed is disabled (no Modbus reads, no HA discovery).  Derived
+# topics (e.g. battery/power, load/active_power) read last_value from other
+# topics, so list their inputs too.
+_enabled_topics = {t.strip() for t in (os.getenv("ENABLED_TOPICS") or "").split(",") if t.strip()}
+if _enabled_topics:
+    _unknown = _enabled_topics - set(mqtt_config)
+    if _unknown:
+        print(f"WARNING: ENABLED_TOPICS contains unknown topics: {sorted(_unknown)}")
+    for _name, _vals in mqtt_config.items():
+        if _name not in _enabled_topics:
+            _vals["enabled"] = False
+    print(f"ENABLED_TOPICS set: {sum(1 for v in mqtt_config.values() if v.get('enabled', True))} of {len(mqtt_config)} topics enabled")

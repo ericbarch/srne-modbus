@@ -47,6 +47,11 @@ TIMEZONE=                                        # Optional: e.g. America/New_Yo
 
 PUBLISH_SYSTEM=true                              # Publish firmware/model info at startup
 
+#### TOPIC ALLOWLIST (optional) ####
+# Comma-separated list of topics to read/publish; all others are disabled.
+# Derived topics (battery/power, load/active_power, ...) need their inputs listed too.
+# ENABLED_TOPICS=battery/soc,battery/voltage,battery/current,battery/power,load/active_power_a,load/active_power_b,load/active_power
+
 #### UPDATE INTERVALS (milliseconds) ####
 PV_INTERVAL=1000                                 # Solar panel data
 BATTERY_INTERVAL=5000                            # Battery data
